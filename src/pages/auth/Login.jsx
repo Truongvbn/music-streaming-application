@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
-
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 const Login = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
 
+  const navigate = useNavigate();
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await login(email, password);
-      // Redirect or show success message
+      navigate('/');
     } catch (error) {
       console.error('Login failed:', error);
-      // Show error message
     }
   };
 

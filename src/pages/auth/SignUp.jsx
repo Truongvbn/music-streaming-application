@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axiosInstance from '../../api/axiosConfig';
+import { toast } from 'react-toastify';
 
 const SignUp = () => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    name: '',
+    username: '',
     email: '',
     password: '',
     confirmPassword: '',
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -16,10 +21,20 @@ const SignUp = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle form submission logic here
-    console.log('Form submitted:', formData);
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.post('/authentication/register/user', formData);
+      console.log('Registration successful:', response.data);
+      toast.success('Đăng ký thành công!');
+      navigate('/login');
+    } catch (error) {
+      console.error('Registration failed:', error);
+      toast.error('Đăng ký thất bại. Vui lòng thử lại.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -33,17 +48,17 @@ const SignUp = () => {
         <form className='mt-8 space-y-6' onSubmit={handleSubmit}>
           <div className='rounded-md shadow-sm -space-y-px'>
             <div>
-              <label htmlFor='name' className='sr-only'>
-                Họ và tên
+              <label htmlFor='username' className='sr-only'>
+                Tên người dùng
               </label>
               <input
-                id='name'
-                name='name'
+                id='username'
+                name='username'
                 type='text'
                 required
                 className='appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm'
-                placeholder='Họ và tên'
-                value={formData.name}
+                placeholder='Tên người dùng'
+                value={formData.username}
                 onChange={handleChange}
               />
             </div>
@@ -100,16 +115,19 @@ const SignUp = () => {
           <div>
             <button
               type='submit'
-              className='group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+              disabled={isLoading}
+              className={`group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${
+                isLoading ? 'opacity-50 cursor-not-allowed' : ''
+              }`}
             >
-              Đăng ký
+              {isLoading ? 'Đang xử lý...' : 'Đăng ký'}
             </button>
           </div>
         </form>
         <div className='text-center'>
           <p className='mt-2 text-sm text-gray-600'>
             Đã có tài khoản?{' '}
-            <a href='#' className='font-medium text-indigo-600 hover:text-indigo-500'>
+            <a href='/login' className='font-medium text-indigo-600 hover:text-indigo-500'>
               Đăng nhập
             </a>
           </p>
